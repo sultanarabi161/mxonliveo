@@ -1,13 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orit Live</title>
+    <title>Orit Live - Clappr</title>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="https://i.ibb.co/WtzxpGF/1000033024.png">
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -19,69 +20,91 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #000000;
             color: #fff;
-            min-height: 100vh;
-            overflow: hidden;
+            height: 100vh;
+            overflow: hidden; /* Prevent body scroll */
         }
 
         .container {
+            display: flex;
             height: 100vh;
-            display: flex;
+            width: 100vw;
             flex-direction: column;
         }
 
-        .content-wrapper {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
+        /* Player Area */
         #player-container {
             width: 100%;
             background: #000;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Default for mobile first approach */
+            height: 40vh; 
         }
 
-        #live-tv-player {
+        /* Clappr specific overrides to force full size */
+        #player-wrapper {
             width: 100%;
             height: 100%;
-            background: #000;
-            object-fit: contain;
         }
 
+        /* Channel List Area */
         .channel-section {
             background-image: url('https://raw.githubusercontent.com/cracker2161/syncing_file/refs/heads/main/logo/bitt%20ka%20naam.jpeg');
             background-size: cover;
             background-position: center;
-            flex: 1;
+            flex: 1; /* Takes remaining height */
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: relative;
+        }
+
+        /* Overlay to make text readable on background image */
+        .channel-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1;
+        }
+
+        .search-bar, .channel-list, .footer {
+            position: relative;
+            z-index: 2;
         }
 
         .search-bar {
             padding: 10px;
-            background: rgba(0, 0, 0, 0.9);
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
 
         .search-bar input {
             width: 100%;
             padding: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
             outline: none;
             background: rgba(255, 255, 255, 0.1);
             color: #ffffff;
             font-size: 16px;
         }
+        
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
 
         .channel-list {
             flex: 1;
             overflow-y: auto;
-            background: rgba(0, 0, 0, 0.8);
+            /* Scrollbar styling */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.1);
         }
 
         .channel-item {
@@ -91,248 +114,223 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             cursor: pointer;
             transition: background 0.2s;
+            background: rgba(0, 0, 0, 0.2);
         }
 
-        .channel-item:hover {
-            background: rgba(255, 255, 255, 0.1);
+        .channel-item:hover, .channel-item.active {
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .channel-item img {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             margin-right: 15px;
-            border-radius: 8px;
-            object-fit: cover;
+            border-radius: 6px;
+            object-fit: contain;
+            background: #000;
         }
 
         .channel-item span {
             color: #fff;
             font-size: 15px;
+            font-weight: 500;
         }
 
         .footer {
             padding: 10px;
             text-align: center;
             background: rgba(0, 0, 0, 0.9);
+            font-size: 12px;
         }
 
         .footer a {
-            color: #ffffff;
+            color: #ccc;
             text-decoration: none;
-            font-size: 14px;
+        }
+        
+        .footer a:hover {
+            color: #fff;
         }
 
-        .channel-list::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .channel-list::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .channel-list::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-        }
-
+        /* Desktop View */
         @media (min-width: 768px) {
-            .content-wrapper {
+            .container {
                 flex-direction: row;
             }
 
             #player-container {
-                flex: 0 0 70%;
                 height: 100vh;
+                width: 75%; /* More space for player on desktop */
             }
 
             .channel-section {
-                width: 30%;
-                min-width: 30%;
-            }
-        }
-
-        @media (max-width: 767px) {
-            body {
-                overflow: auto;
-            }
-
-            .container {
-                height: auto;
-            }
-
-            #player-container {
-                height: 35vh;
-            }
-
-            .channel-section {
-                height: 65vh;
-            }
-
-            .channel-list {
-                max-height: calc(65vh - 110px);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .channel-item {
-                padding: 10px;
-            }
-
-            .channel-item img {
-                width: 35px;
-                height: 35px;
-                margin-right: 10px;
-            }
-
-            .channel-item span {
-                font-size: 14px;
+                height: 100vh;
+                width: 25%;
+                min-width: 300px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="content-wrapper">
-            <div id="player-container">
-                <video id="live-tv-player" controls preload="auto">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
+        <div id="player-container">
+            <div id="player-wrapper"></div>
+        </div>
 
-            <div class="channel-section">
-                <div class="search-bar">
-                    <input type="text" id="search-input" placeholder="Search channels..." onkeyup="filterChannels()">
-                </div>
-                <div class="channel-list" id="channel-list"></div>
-                <div class="footer">
-                    <a href="updates.html" target="_blank">Visit for more updates</a>
-                </div>
+        <div class="channel-section">
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search TV Channels..." onkeyup="filterChannels()">
+            </div>
+            <div class="channel-list" id="channel-list">
+                <div style="padding: 20px; text-align: center; color: #aaa;">Loading channels...</div>
+            </div>
+            <div class="footer">
+                <a href="updates.html" target="_blank">Developed by Oriby Team – Brought to life by Sultan 🔥</a>
             </div>
         </div>
     </div>
 
     <script>
-        let player = document.getElementById('live-tv-player');
-        let currentHls = null;
+        let playerInstance = null;
+        
+        // M3U URL - Ensure CORS is enabled on the server side or use a proxy if needed
+        const M3U_URL = 'https://m3u.ch/pl/b3499faa747f2cd4597756dbb5ac2336_e78e8c1a1cebb153599e2d938ea41a50.m3u';
 
         window.onload = () => {
             loadChannels();
-            adjustPlayerHeight();
         };
 
-        window.onresize = adjustPlayerHeight;
-
-        function adjustPlayerHeight() {
-            if (window.innerWidth >= 768) {
-                player.style.height = '100vh';
-            } else {
-                player.style.height = '35vh';
-            }
-        }
-
-        const config = {
-            maxBufferLength: 30,
-            maxMaxBufferLength: 600,
-            manifestLoadingTimeOut: 10000,
-            manifestLoadingMaxRetry: 5,
-            levelLoadingTimeOut: 10000,
-            levelLoadingMaxRetry: 5
-        };
-
-        function playChannel(url) {
-            // Destroy previous HLS instance if exists
-            if (currentHls) {
-                currentHls.destroy();
-                currentHls = null;
+        function initPlayer(url) {
+            // Destroy existing player if it exists
+            if (playerInstance) {
+                playerInstance.destroy();
             }
 
-            if (Hls.isSupported()) {
-                currentHls = new Hls(config);
-                currentHls.loadSource(url);
-                currentHls.attachMedia(player);
-                currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    player.play().catch(error => {
-                        console.error('Error playing channel:', error);
-                    });
-                });
-                
-                currentHls.on(Hls.Events.ERROR, function(event, data) {
-                    if (data.fatal) {
-                        switch(data.type) {
-                            case Hls.ErrorTypes.NETWORK_ERROR:
-                                console.log("Network error, trying to recover...");
-                                currentHls.startLoad();
-                                break;
-                            case Hls.ErrorTypes.MEDIA_ERROR:
-                                console.log("Media error, trying to recover...");
-                                currentHls.recoverMediaError();
-                                break;
-                            default:
-                                currentHls.destroy();
-                                break;
-                        }
+            // Initialize Clappr
+            playerInstance = new Clappr.Player({
+                source: url,
+                parentId: '#player-wrapper',
+                width: '100%',
+                height: '100%',
+                autoPlay: true,
+                poster: 'https://raw.githubusercontent.com/sultanarabi161/mxonliveo/refs/heads/main/app/src/main/res/drawable/app_logo.png', // Optional default poster
+                plugins: {
+                    // You can add plugins here if needed later
+                },
+                playback: {
+                    playInline: true, // Important for mobile
+                    recycleVideo: true
+                },
+                events: {
+                    onError: function(e) {
+                        console.error("Clappr Error:", e);
                     }
-                });
-            }
-            // For browsers that natively support HLS
-            else if (player.canPlayType('application/vnd.apple.mpegurl')) {
-                player.src = url;
-                player.addEventListener('loadedmetadata', function() {
-                    player.play();
-                });
-            }
+                }
+            });
         }
 
         async function loadChannels() {
             try {
-                const response = await fetch('https://m3u.ch/pl/b3499faa747f2cd4597756dbb5ac2336_e78e8c1a1cebb153599e2d938ea41a50.m3u');
+                const response = await fetch(M3U_URL);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
                 const playlist = await response.text();
-                const lines = playlist.split('\n');
-                const channels = [];
-
-                for (let i = 0; i < lines.length; i++) {
-                    if (lines[i].startsWith('#EXTINF')) {
-                        const name = lines[i].split(',')[1];
-                        const url = lines[i + 1];
-                        const logoMatch = lines[i].match(/tvg-logo="(.*?)"/);
-                        const logo = logoMatch ? logoMatch[1] : '';
-                        if (url && url.startsWith('http')) {
-                            channels.push({ name, url, logo });
-                        }
-                    }
-                }
-
-                renderChannels(channels);
+                parseM3U(playlist);
             } catch (error) {
                 console.error('Error loading channels:', error);
+                document.getElementById('channel-list').innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #ff6b6b;">
+                        Failed to load channels.<br>Check internet or CORS policy.
+                    </div>
+                `;
             }
+        }
+
+        function parseM3U(data) {
+            const lines = data.split('\n');
+            const channels = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                if (line.startsWith('#EXTINF')) {
+                    // More robust parsing logic
+                    const url = (lines[i + 1] || '').trim();
+                    
+                    if (url && !url.startsWith('#')) {
+                        // Extract Logo
+                        const logoMatch = line.match(/tvg-logo="([^"]*)"/);
+                        const logo = logoMatch ? logoMatch[1] : '';
+
+                        // Extract Name (Everything after the last comma usually, but let's be safe)
+                        const infoParts = line.split(',');
+                        let name = 'Unknown Channel';
+                        if(infoParts.length > 1) {
+                            name = infoParts.slice(1).join(',').trim(); // Rejoin in case name has commas
+                        }
+
+                        channels.push({ name, url, logo });
+                    }
+                }
+            }
+
+            renderChannels(channels);
         }
 
         function renderChannels(channels) {
             const channelList = document.getElementById('channel-list');
             channelList.innerHTML = '';
+            
+            if (channels.length === 0) {
+                channelList.innerHTML = '<div style="padding:20px; text-align:center;">No channels found.</div>';
+                return;
+            }
+
             channels.forEach((channel, index) => {
                 const item = document.createElement('div');
                 item.className = 'channel-item';
+                // Fallback image if logo is missing or broken
+                const logoSrc = channel.logo || 'https://via.placeholder.com/45?text=TV';
+                
                 item.innerHTML = `
-                    <img src="${channel.logo || 'https://via.placeholder.com/40'}" alt="${channel.name}">
+                    <img src="${logoSrc}" alt="${channel.name}" onerror="this.src='https://via.placeholder.com/45?text=TV'">
                     <span>${channel.name}</span>
                 `;
-                item.onclick = () => playChannel(channel.url);
+                
+                item.onclick = function() {
+                    // Highlight active channel
+                    document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    playChannel(channel.url);
+                };
+
                 channelList.appendChild(item);
 
+                // Auto play first channel
                 if (index === 0) {
+                    item.classList.add('active');
                     playChannel(channel.url);
                 }
             });
         }
 
+        function playChannel(url) {
+            console.log("Playing:", url);
+            initPlayer(url);
+        }
+
         function filterChannels() {
             const searchInput = document.getElementById('search-input').value.toLowerCase();
             const items = document.querySelectorAll('.channel-item');
+            
             items.forEach(item => {
                 const name = item.querySelector('span').textContent.toLowerCase();
-                item.style.display = name.includes(searchInput) ? 'flex' : 'none';
+                if (name.includes(searchInput)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
             });
         }
     </script>
