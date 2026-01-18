@@ -1,0 +1,22 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.sultanarabi161.mxonlive'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.sultanarabi161.mxonlive"
+        minSdk 24
+        targetSdk 33
+        versionCode 2
+        versionName "2.0.0"
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.android.material:material:1.9.0'
+}
