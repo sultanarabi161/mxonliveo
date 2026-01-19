@@ -22,64 +22,57 @@ public class MainActivity extends AppCompatActivity {
         myWebView = findViewById(R.id.webview);
         WebSettings webSettings = myWebView.getSettings();
         
-        // Enable JavaScript execution inside WebView
         webSettings.setJavaScriptEnabled(true);
-        // Enable DOM storage API for modern web apps
         webSettings.setDomStorageEnabled(true);
-        // Allow file access from WebView
         webSettings.setAllowFileAccess(true);
-        // Allow content access from WebView
         webSettings.setAllowContentAccess(true);
-        // Allow media playback without requiring user gesture
         webSettings.setMediaPlaybackRequiresUserGesture(false);
         
-        // Ensure links open inside the app instead of an external browser
+        // অ্যাপের লিংকগুলো যাতে ব্রাউজারে ওপেন না হয়ে অ্যাপেই থাকে
         myWebView.setWebViewClient(new WebViewClient());
-        // Load the local HTML file from assets folder
-        myWebViewandroid_asset/index.html");
+        
+        // নিচের এই লাইনটিতেই ভুল ছিল, এখন ঠিক করে দেওয়া হয়েছে
+        myWebView.loadUrl("file:///android_asset/index.html");
     }
 
-    // 1. When the Home button is pressed, PiP (Picture-in-Picture) mode will be activated
+    // ১. হোম বাটনে চাপ দিলে PiP মোড চালু হবে
     @Override
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             PictureInPictureParams params = new PictureInPictureParams.Builder()
-                    // Set PiP window aspect ratio to 16:9
                     .setAspectRatio(new Rational(16, 9))
                     .build();
             enterPictureInPictureMode(params);
         }
     }
 
-    // 2. PiP mode control logic (for new HTML integration)
+    // ২. PiP মোড কন্ট্রোল লজিক (নতুন HTML এর জন্য)
     @Override
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
         
         if (isInPictureInPictureMode) {
-            // Hide the Action Bar when in PiP mode
+            // অ্যাকশন বার হাইড করুন
             if (getSupportActionBar() != null) getSupportActionBar().hide();
             
-            // Notify HTML: "Enable PiP mode" (e.g., hide lists or UI elements)
+            // HTML কে বলুন: "PiP মোড অন করো" (লিস্ট লুকিয়ে ফেলবে)
             myWebView.evaluateJavascript("togglePiPMode(true);", null);
             
         } else {
-            // Show the Action Bar when returning to full screen
+            // অ্যাকশন বার শো করুন
             if (getSupportActionBar() != null) getSupportActionBar().show();
             
-            // Notify HTML: "Disable PiP mode" (e.g., restore lists or UI elements)
+            // HTML কে বলুন: "PiP মোড অফ করো" (লিস্ট ফিরিয়ে আনবে)
             myWebView.evaluateJavascript("togglePiPMode(false);", null);
         }
     }
 
     @Override
     public void onBackPressed() {
-        // Navigate back inside WebView if possible
         if (myWebView.canGoBack()) {
             myWebView.goBack();
         } else {
-            // Otherwise, perform default back action
             super.onBackPressed();
         }
     }
