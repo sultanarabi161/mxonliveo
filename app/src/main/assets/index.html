@@ -10,164 +10,48 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #000000; color: #fff; height: 100vh; overflow: hidden; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #000000;
-            color: #fff;
-            height: 100vh;
-            overflow: hidden; /* Prevent body scroll */
-        }
-
-        .container {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-            flex-direction: column;
-        }
+        .container { display: flex; height: 100vh; width: 100vw; flex-direction: column; }
 
         /* Player Area */
-        #player-container {
-            width: 100%;
-            background: #000;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            /* Default for mobile first approach */
-            height: 40vh; 
-        }
+        #player-container { width: 100%; background: #000; position: relative; display: flex; align-items: center; justify-content: center; height: 40vh; transition: height 0.3s ease; }
+        #player-wrapper { width: 100%; height: 100%; }
 
-        /* Clappr specific overrides to force full size */
-        #player-wrapper {
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Channel List Area */
+        /* Channel Section */
         .channel-section {
             background-image: url('https://raw.githubusercontent.com/cracker2161/syncing_file/refs/heads/main/logo/bitt%20ka%20naam.jpeg');
-            background-size: cover;
-            background-position: center;
-            flex: 1; /* Takes remaining height */
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
+            background-size: cover; background-position: center;
+            flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
+        .channel-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); z-index: 1; }
 
-        /* Overlay to make text readable on background image */
-        .channel-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1;
-        }
+        .search-bar, .channel-list, .footer { position: relative; z-index: 2; }
 
-        .search-bar, .channel-list, .footer {
-            position: relative;
-            z-index: 2;
-        }
+        /* UI Elements */
+        .search-bar { padding: 10px; background: rgba(0, 0, 0, 0.8); box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .search-bar input { width: 100%; padding: 12px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; outline: none; background: rgba(255, 255, 255, 0.1); color: #ffffff; font-size: 16px; }
+        .channel-list { flex: 1; overflow-y: auto; scrollbar-width: thin; }
+        .channel-item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); cursor: pointer; background: rgba(0, 0, 0, 0.2); }
+        .channel-item:hover, .channel-item.active { background: rgba(255, 255, 255, 0.15); }
+        .channel-item img { width: 45px; height: 45px; margin-right: 15px; border-radius: 6px; object-fit: contain; background: #000; }
+        .channel-item span { color: #fff; font-size: 15px; font-weight: 500; }
+        .footer { padding: 10px; text-align: center; background: rgba(0, 0, 0, 0.9); font-size: 12px; }
+        .footer a { color: #ccc; text-decoration: none; }
 
-        .search-bar {
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-        }
-
-        .search-bar input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            outline: none;
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            font-size: 16px;
-        }
-        
-        .search-bar input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .channel-list {
-            flex: 1;
-            overflow-y: auto;
-            /* Scrollbar styling */
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.1);
-        }
-
-        .channel-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            cursor: pointer;
-            transition: background 0.2s;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .channel-item:hover, .channel-item.active {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .channel-item img {
-            width: 45px;
-            height: 45px;
-            margin-right: 15px;
-            border-radius: 6px;
-            object-fit: contain;
-            background: #000;
-        }
-
-        .channel-item span {
-            color: #fff;
-            font-size: 15px;
-            font-weight: 500;
-        }
-
-        .footer {
-            padding: 10px;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.9);
-            font-size: 12px;
-        }
-
-        .footer a {
-            color: #ccc;
-            text-decoration: none;
-        }
-        
-        .footer a:hover {
-            color: #fff;
-        }
+        /* ---------- PIP MODE STYLES (ম্যাজিক কোড) ---------- */
+        /* যখন বডিতে 'pip-active' ক্লাস থাকবে, তখন নিচের নিয়মগুলো কাজ করবে */
+        body.pip-active .channel-section { display: none !important; }
+        body.pip-active .container { height: 100vh; width: 100vw; }
+        body.pip-active #player-container { height: 100vh !important; width: 100vw !important; }
+        /* ---------------------------------------------------- */
 
         /* Desktop View */
         @media (min-width: 768px) {
-            .container {
-                flex-direction: row;
-            }
-
-            #player-container {
-                height: 100vh;
-                width: 75%; /* More space for player on desktop */
-            }
-
-            .channel-section {
-                height: 100vh;
-                width: 25%;
-                min-width: 300px;
-            }
+            .container { flex-direction: row; }
+            #player-container { height: 100vh; width: 75%; }
+            .channel-section { height: 100vh; width: 25%; min-width: 300px; }
         }
     </style>
 </head>
@@ -185,152 +69,97 @@
                 <div style="padding: 20px; text-align: center; color: #aaa;">Loading channels...</div>
             </div>
             <div class="footer">
-                <a href="updates.html" target="_blank">Developed by Oriby Team – Brought to life by Sultan 🔥</a>
+                <a href="updates.html">Developed by Oriby Team – Brought to life by Sultan 🔥</a>
             </div>
         </div>
     </div>
 
     <script>
         let playerInstance = null;
-        
-        // M3U URL - Ensure CORS is enabled on the server side or use a proxy if needed
         const M3U_URL = 'https://m3u.ch/pl/b3499faa747f2cd4597756dbb5ac2336_e78e8c1a1cebb153599e2d938ea41a50.m3u';
 
-        window.onload = () => {
-            loadChannels();
-        };
+        // --- PIP Control Function (Called from Java) ---
+        function togglePiPMode(enable) {
+            if (enable) {
+                document.body.classList.add('pip-active');
+                if(playerInstance) playerInstance.resize({height: '100%', width: '100%'});
+            } else {
+                document.body.classList.remove('pip-active');
+                if(playerInstance) playerInstance.resize({height: '100%', width: '100%'});
+            }
+        }
+        // ----------------------------------------------
+
+        window.onload = () => { loadChannels(); };
 
         function initPlayer(url) {
-            // Destroy existing player if it exists
-            if (playerInstance) {
-                playerInstance.destroy();
-            }
-
-            // Initialize Clappr
+            if (playerInstance) playerInstance.destroy();
             playerInstance = new Clappr.Player({
                 source: url,
                 parentId: '#player-wrapper',
-                width: '100%',
-                height: '100%',
+                width: '100%', height: '100%',
                 autoPlay: true,
-                poster: 'https://raw.githubusercontent.com/sultanarabi161/mxonliveo/refs/heads/main/app/src/main/res/drawable/app_logo.png', // Optional default poster
-                plugins: {
-                    // You can add plugins here if needed later
-                },
-                playback: {
-                    playInline: true, // Important for mobile
-                    recycleVideo: true
-                },
-                events: {
-                    onError: function(e) {
-                        console.error("Clappr Error:", e);
-                    }
-                }
+                poster: 'https://raw.githubusercontent.com/sultanarabi161/mxonliveo/refs/heads/main/app/src/main/res/drawable/app_logo.png',
+                playback: { playInline: true, recycleVideo: true }
             });
         }
 
         async function loadChannels() {
             try {
                 const response = await fetch(M3U_URL);
-                if (!response.ok) throw new Error('Network response was not ok');
-                
+                if (!response.ok) throw new Error('Network response');
                 const playlist = await response.text();
                 parseM3U(playlist);
             } catch (error) {
-                console.error('Error loading channels:', error);
-                document.getElementById('channel-list').innerHTML = `
-                    <div style="padding: 20px; text-align: center; color: #ff6b6b;">
-                        Failed to load channels.<br>Check internet or CORS policy.
-                    </div>
-                `;
+                console.error('Error:', error);
+                document.getElementById('channel-list').innerHTML = '<div style="padding: 20px; text-align: center; color: #ff6b6b;">Failed to load list.</div>';
             }
         }
 
         function parseM3U(data) {
             const lines = data.split('\n');
             const channels = [];
-            
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i].trim();
-                
                 if (line.startsWith('#EXTINF')) {
-                    // More robust parsing logic
                     const url = (lines[i + 1] || '').trim();
-                    
                     if (url && !url.startsWith('#')) {
-                        // Extract Logo
                         const logoMatch = line.match(/tvg-logo="([^"]*)"/);
                         const logo = logoMatch ? logoMatch[1] : '';
-
-                        // Extract Name (Everything after the last comma usually, but let's be safe)
                         const infoParts = line.split(',');
-                        let name = 'Unknown Channel';
-                        if(infoParts.length > 1) {
-                            name = infoParts.slice(1).join(',').trim(); // Rejoin in case name has commas
-                        }
-
+                        let name = infoParts.length > 1 ? infoParts.slice(1).join(',').trim() : 'Unknown';
                         channels.push({ name, url, logo });
                     }
                 }
             }
-
             renderChannels(channels);
         }
 
         function renderChannels(channels) {
-            const channelList = document.getElementById('channel-list');
-            channelList.innerHTML = '';
-            
-            if (channels.length === 0) {
-                channelList.innerHTML = '<div style="padding:20px; text-align:center;">No channels found.</div>';
-                return;
-            }
+            const list = document.getElementById('channel-list');
+            list.innerHTML = '';
+            if (channels.length === 0) { list.innerHTML = '<div style="padding:20px; text-align:center;">No channels found.</div>'; return; }
 
             channels.forEach((channel, index) => {
                 const item = document.createElement('div');
                 item.className = 'channel-item';
-                // Fallback image if logo is missing or broken
                 const logoSrc = channel.logo || 'https://via.placeholder.com/45?text=TV';
-                
-                item.innerHTML = `
-                    <img src="${logoSrc}" alt="${channel.name}" onerror="this.src='https://via.placeholder.com/45?text=TV'">
-                    <span>${channel.name}</span>
-                `;
-                
+                item.innerHTML = `<img src="${logoSrc}" onerror="this.src='https://via.placeholder.com/45?text=TV'"><span>${channel.name}</span>`;
                 item.onclick = function() {
-                    // Highlight active channel
                     document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
                     item.classList.add('active');
-                    
-                    playChannel(channel.url);
+                    initPlayer(channel.url);
                 };
-
-                channelList.appendChild(item);
-
-                // Auto play first channel
-                if (index === 0) {
-                    item.classList.add('active');
-                    playChannel(channel.url);
-                }
+                list.appendChild(item);
+                if (index === 0) { item.classList.add('active'); initPlayer(channel.url); }
             });
         }
 
-        function playChannel(url) {
-            console.log("Playing:", url);
-            initPlayer(url);
-        }
-
         function filterChannels() {
-            const searchInput = document.getElementById('search-input').value.toLowerCase();
-            const items = document.querySelectorAll('.channel-item');
-            
-            items.forEach(item => {
+            const input = document.getElementById('search-input').value.toLowerCase();
+            document.querySelectorAll('.channel-item').forEach(item => {
                 const name = item.querySelector('span').textContent.toLowerCase();
-                if (name.includes(searchInput)) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
+                item.style.display = name.includes(input) ? 'flex' : 'none';
             });
         }
     </script>
